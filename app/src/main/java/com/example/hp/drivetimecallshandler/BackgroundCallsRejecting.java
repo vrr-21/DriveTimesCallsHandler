@@ -19,7 +19,11 @@ import android.widget.Toast;
 
 import com.android.internal.telephony.ITelephony;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -35,7 +39,8 @@ public class BackgroundCallsRejecting extends Service {
     }
     NotificationManager notificationManager;
 
-    Vector<String> callersFromContactList=new Vector<String>();
+    static List<Caller> callersFromContactList=new ArrayList<Caller>();
+    static List<Caller> callersNotFromContactList=new ArrayList<Caller>();
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -62,6 +67,7 @@ public class BackgroundCallsRejecting extends Service {
                 {
                     try
                     {
+                        Caller temp;
                         String name=findNameByNumber(incomingNumber);
                         TelephonyManager telephonyManager = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
                         Class clazz = Class.forName(telephonyManager.getClass().getName());
@@ -70,10 +76,14 @@ public class BackgroundCallsRejecting extends Service {
                         ITelephony telephonyService = (ITelephony) method.invoke(telephonyManager);
                         telephonyService.endCall();
                         if(name.equals("Not Found"))
+                        {
+                            temp=new Caller("Unknown",incomingNumber,Calendar.getInstance().getTime().toString());
                             Toast.makeText(getApplicationContext(),"Call From "+number+".Rejected.", Toast.LENGTH_SHORT).show();
+                            callersNotFromContactList.add(temp);
+                        }
                         else
                         {
-                            callersFromContactList.add(name);
+                            temp=new Caller(name,incomingNumber,Calendar.getInstance().getTime().toString());
                             Toast.makeText(getApplicationContext(),"Call From "+name+".Rejected.", Toast.LENGTH_SHORT).show();
                             //Sending the message to one who has called
                             String phoneNo=number;
@@ -83,6 +93,7 @@ public class BackgroundCallsRejecting extends Service {
                             Toast.makeText(getApplicationContext(), "SMS sent.",Toast.LENGTH_SHORT).show();
                             notiBuilder.setContentText(callersFromContactList.size()+" calls rejected");
                             notificationManager.notify(NOTIFICATION_ID,notiBuilder.build());
+                            callersFromContactList.add(temp);
                         }
                     }
                     catch(Exception e)
@@ -117,14 +128,14 @@ public class BackgroundCallsRejecting extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(getApplicationContext(),"Calls now available", Toast.LENGTH_LONG).show();
+       /* Toast.makeText(getApplicationContext(),"Calls now available", Toast.LENGTH_LONG).show();
         Toast.makeText(getApplicationContext(),"Callers who had called:", Toast.LENGTH_LONG).show();
         while(callersFromContactList.size()!=0)
         {
             String n=callersFromContactList.elementAt(0);
             Toast.makeText(getApplicationContext(),n, Toast.LENGTH_LONG).show();
             callersFromContactList.removeElementAt(0);
-        }
+        }*/
         notificationManager.cancel(NOTIFICATION_ID);
         super.onDestroy();
     }

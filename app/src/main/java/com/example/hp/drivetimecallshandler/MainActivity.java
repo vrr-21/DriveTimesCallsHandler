@@ -18,6 +18,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.Serializable;
+
+import static com.example.hp.drivetimecallshandler.BackgroundCallsRejecting.callersFromContactList;
+import static com.example.hp.drivetimecallshandler.BackgroundCallsRejecting.callersNotFromContactList;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -121,9 +126,13 @@ public class MainActivity extends AppCompatActivity {
                 speedDisplayer.setVisibility(View.INVISIBLE);
                 endDrive.setVisibility(View.INVISIBLE);
                 startDrive.setVisibility(View.VISIBLE);
-                someText.setText("This app will automatically reject any incoming calls coming after you've pressed the above button. If the call has come from a contact of yours, then that person will be sent a message that you are currently driving and hence cannot attend the call.");
+                someText.setText("@string/msg1");
                 editor.putBoolean(isCurrentDrivingKey,false).commit();
                 stopService(new Intent(getBaseContext(),BackgroundCallsRejecting.class));
+                Intent showAllCallers=new Intent(getBaseContext(),AllCallers.class);
+                showAllCallers.putExtra("callerDataContactList", (Serializable) callersFromContactList);
+                showAllCallers.putExtra("callerDataNonContactList",(Serializable)callersNotFromContactList);
+                startActivity(showAllCallers);
             }
         });
     }
