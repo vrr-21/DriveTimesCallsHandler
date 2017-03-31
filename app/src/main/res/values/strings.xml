@@ -2,4 +2,8 @@
     <string name="app_name">Drive Time Calls Handler</string>
     <string name="msg1">This app will automatically reject any incoming calls coming after you\'ve pressed the above button. If the call has come from a contact of yours, then that person will be sent a message that you are currently driving and hence cannot attend the call.</string>
     <string name="msg2">All Calls will be rejected automatically, and for your contacts a message will be sent. Concentrate on the driving and not the phone!</string>
+    <string name="keySMS">SMSKey</string>
+    <string name="SettingsKey">SettingsKey</string>
+    <string name="defaultSMS">Currently Driving, will call back as soon as possible.\nBy Drive Time Call Handler.</string>
+    <string name="enablerKey">SMSEnablerKey</string>
 </resources>

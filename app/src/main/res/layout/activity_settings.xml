@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <TextView
+        android:id="@+id/settingsFirstText"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="Settings Activity"
+        android:textAlignment="center"
+        android:textSize="40dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:textColorHighlight="@color/colorAccent"/>
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.09"
+        android:text="Enable SMS Sending"
+        android:checked="true"
+        android:textColor="@color/colorAccent"
+        android:textSize="30sp"
+        android:layout_marginTop="51dp"
+        android:layout_below="@+id/settingsFirstText"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:editable="true"
+        android:layout_height="190dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/smsToBeSent"
+        android:text="@string/defaultSMS"
+        android:background="@color/colorEditTextBG"
+        android:textColor="@color/colorEditText"
+        android:inputType="textMultiLine|textCapSentences"
+        android:layout_below="@+id/switch1"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:id="@+id/saveSMS"
+        android:text="Save Settings"
+        android:layout_marginTop="63dp"
+        android:layout_below="@+id/smsToBeSent"
+        android:layout_centerHorizontal="true" />
+
+
+</RelativeLayout>

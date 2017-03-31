@@ -11,91 +11,97 @@
     android:background="@drawable/gradient"
     tools:context="com.example.hp.drivetimecallshandler.MainActivity">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:text="Focus on the Driving!"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="52dp"
+                android:id="@+id/title"
+                android:typeface="sans"
+                android:textSize="46sp"
+                android:textColor="?attr/colorControlActivated"
+                android:fontFamily="casual"
+                android:textAllCaps="false"
+                android:textAlignment="center" />
 
-    <TextView
-        android:text="Focus on the Driving!"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="52dp"
-        android:id="@+id/title"
-        android:typeface="sans"
-        android:textSize="46sp"
-        android:textColor="?attr/colorControlActivated"
-        android:fontFamily="casual"
-        android:textAllCaps="false"
-        android:textAlignment="center" />
+            <TextView
+                android:text="Leave the Call to me!"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/title"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="18dp"
+                android:id="@+id/textView3"
+                android:textSize="30sp"
+                android:fontFamily="casual"
+                android:textAlignment="center"
+                android:textColor="?attr/colorAccent" />
 
-    <TextView
-        android:text="Leave the Call to me!"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="18dp"
-        android:id="@+id/textView3"
-        android:textSize="30sp"
-        android:fontFamily="casual"
-        android:textAlignment="center"
-        android:textColor="?attr/colorAccent" />
+            <Button
+                android:text="Start Driving"
+                android:fontFamily="casual"
+                android:textSize="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="23dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:id="@+id/drivingStart"
+                android:background="@drawable/round_button"
+                android:elevation="0dp"
+                android:visibility="visible"
+                android:layout_below="@+id/textView3"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/colorAccent"/>
 
-    <Button
-        android:text="Start Driving"
-        android:fontFamily="casual"
-        android:textSize="25dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="23dp"
-        android:gravity="center_vertical|center_horizontal"
-        android:id="@+id/drivingStart"
-        android:background="@drawable/round_button"
-        android:elevation="0dp"
-        android:visibility="visible"
-        android:layout_below="@+id/textView3"
-        android:layout_centerHorizontal="true"
-        android:textColor="@color/colorAccent"/>
+            <TextView
+                android:text="@string/msg1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="31dp"
+                android:id="@+id/someText"
+                android:textSize="18sp"
+                android:fontFamily="casual"
+                android:textColor="@color/colorAccent"
+                android:layout_below="@+id/drivingStart"
+                android:layout_alignParentStart="true" />
 
-    <TextView
-        android:text="@string/msg1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="31dp"
-        android:id="@+id/someText"
-        android:textSize="18sp"
-        android:fontFamily="casual"
-        android:textColor="@color/colorAccent"
-        android:layout_below="@+id/drivingStart"
-        android:layout_alignParentStart="true" />
+            <Button
+                android:text="End Driving"
+                android:fontFamily="casual"
+                android:textSize="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|center_horizontal"
+                android:id="@+id/drivingOver"
+                android:background="@drawable/round_button"
+                android:elevation="0dp"
+                android:textColor="@color/colorAccent"
+                android:visibility="invisible"
+                android:layout_alignBaseline="@+id/drivingStart"
+                android:layout_alignBottom="@+id/drivingStart"
+                android:layout_alignStart="@+id/drivingStart"
+                />
 
-    <Button
-        android:text="End Driving"
-        android:fontFamily="casual"
-        android:textSize="25dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical|center_horizontal"
-        android:id="@+id/drivingOver"
-        android:background="@drawable/round_button"
-        android:elevation="0dp"
-        android:textColor="@color/colorAccent"
-        android:visibility="invisible"
-        android:layout_alignBaseline="@+id/drivingStart"
-        android:layout_alignBottom="@+id/drivingStart"
-        android:layout_alignStart="@+id/drivingStart"
-        />
+            <Button
+                android:id="@+id/goToSettings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/someText"
+                android:visibility="visible"
+                android:elevation="6dp"
+                android:text="Settings"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="26dp" />
 
-    <TextView
-        android:text="Not Moving."
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:id="@+id/speedDisplay"
-        android:fontFamily="casual"
-        android:textSize="24sp"
-        android:textColor="@color/colorAccent"
-        android:layout_below="@+id/someText"
-        android:layout_centerHorizontal="true"
-        android:visibility="invisible"/>
+        </RelativeLayout>
+    </ScrollView>
 
 </RelativeLayout>

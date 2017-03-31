@@ -60,22 +60,30 @@ public class MainActivity extends AppCompatActivity {
 
         final Button startDrive = (Button) findViewById(R.id.drivingStart);
         final Button endDrive = (Button) findViewById(R.id.drivingOver);
+        final Button goToSettings = (Button) findViewById(R.id.goToSettings);
         final TextView someText = (TextView) findViewById(R.id.someText);
-        final TextView speedDisplayer=(TextView)findViewById(R.id.speedDisplay);
 
         if (getCurrentMode.getBoolean(isCurrentDrivingKey, Boolean.parseBoolean(null))) {
             startDrive.setVisibility(View.INVISIBLE);
             endDrive.setVisibility(View.VISIBLE);
-            speedDisplayer.setVisibility(View.VISIBLE);
+            goToSettings.setVisibility(View.INVISIBLE);
             someText.setText(R.string.msg2);
         } else {
             endDrive.setVisibility(View.INVISIBLE);
+            goToSettings.setVisibility(View.VISIBLE);
             startDrive.setVisibility(View.VISIBLE);
-            speedDisplayer.setVisibility(View.INVISIBLE);
             someText.setText(R.string.msg1);
         }
 
         final LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        goToSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent headSettings=new Intent(getApplicationContext(),Settings.class);
+                startActivity(headSettings);
+            }
+        });
 
         startDrive.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 startDrive.setVisibility(View.INVISIBLE);
                 endDrive.setVisibility(View.VISIBLE);
                 someText.setText(R.string.msg2);
+                goToSettings.setVisibility(View.INVISIBLE);
                 editor.putBoolean(isCurrentDrivingKey, true).commit();
                 //speedDisplayer.setVisibility(View.VISIBLE);
 
@@ -96,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         //location.getLatitude();
                         //Toast.makeText(getApplicationContext(), "Current speed:" + location.getSpeed(), Toast.LENGTH_SHORT).show();
                         String toBeDisplayed="Current Speed:"+location.getSpeed();
-                        speedDisplayer.setText(toBeDisplayed);
+                        //speedDisplayer.setText(toBeDisplayed);
                     }
 
                     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -129,10 +138,10 @@ public class MainActivity extends AppCompatActivity {
         endDrive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                speedDisplayer.setVisibility(View.INVISIBLE);
                 endDrive.setVisibility(View.INVISIBLE);
                 startDrive.setVisibility(View.VISIBLE);
                 someText.setText(R.string.msg1);
+                goToSettings.setVisibility(View.VISIBLE);
                 editor.putBoolean(isCurrentDrivingKey,false).commit();
                 stopService(new Intent(getBaseContext(),BackgroundCallsRejecting.class));
             }

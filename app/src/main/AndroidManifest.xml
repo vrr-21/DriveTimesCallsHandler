@@ -31,7 +31,8 @@
 
         <service android:name=".BackgroundCallsRejecting" />
 
-        <activity android:name=".AllCallers"></activity>
+        <activity android:name=".AllCallers" />
+        <activity android:name=".Settings"></activity>
     </application>
 
 </manifest>

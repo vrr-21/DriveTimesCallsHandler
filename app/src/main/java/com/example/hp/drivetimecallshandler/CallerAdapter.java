@@ -54,7 +54,7 @@ public class CallerAdapter extends ArrayAdapter<Caller> {
                 Intent callPerson=new Intent(Intent.ACTION_CALL);
                 String toBeCalled="tel:"+mData[position].number;
                 callPerson.setData(Uri.parse(toBeCalled));
-                callPerson.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                callPerson.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if (ActivityCompat.checkSelfPermission(mContext,Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(mContext,"Permission disabled to call. Hence, cannot call",Toast.LENGTH_LONG);
                     return;

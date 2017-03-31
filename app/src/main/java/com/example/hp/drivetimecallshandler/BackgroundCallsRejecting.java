@@ -3,14 +3,18 @@ package com.example.hp.drivetimecallshandler;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
 import android.nfc.Tag;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
@@ -47,7 +51,10 @@ public class BackgroundCallsRejecting extends Service {
     }
     NotificationManager notificationManager;
     @Override
+
     public int onStartCommand(Intent intent, int flags, int startId) {
+        final SharedPreferences getCurrentMode = getApplicationContext().getSharedPreferences(getString(R.string.SettingsKey), MODE_PRIVATE);
+        final SharedPreferences.Editor editor = getCurrentMode.edit();
         final SQLiteDatabase sqlDB=openOrCreateDatabase("db123#5",MODE_PRIVATE,null);
         //Used to redirect user to app on clicking the notification.
         Intent traceBackToApp=new Intent(getApplicationContext(),MainActivity.class);
@@ -63,6 +70,7 @@ public class BackgroundCallsRejecting extends Service {
                 .setOngoing(true);
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID,notiBuilder.build());
+
 
         TelephonyManager telephonyManager = (TelephonyManager)getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
         // register PhoneStateListener
@@ -91,21 +99,28 @@ public class BackgroundCallsRejecting extends Service {
                         method.setAccessible(true);
                         ITelephony telephonyService = (ITelephony) method.invoke(telephonyManager);
                         telephonyService.endCall();
+
                         if(name.equals("Not Found"))
                         {
+                            //not in contact list
                             name="Unknown";
-                            Toast.makeText(getApplicationContext(),"Call From "+number+".Rejected.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),"Call From "+incomingNumber+".Rejected.", Toast.LENGTH_SHORT).show();
                         }
                         else
                         {
+                            //in contact list
                             Toast.makeText(getApplicationContext(),"Call From "+name+".Rejected.", Toast.LENGTH_SHORT).show();
                             //Sending the message to one who has called
-                            String phoneNo=number;
-                            String message="Varun is currently driving. He has been notified, and will call when free.\nSent via Drive time Calls Handler";
-                            SmsManager smsManager=SmsManager.getDefault();
-                            //smsManager.sendTextMessage(phoneNo,null,message,null,null);
-                            Toast.makeText(getApplicationContext(), "SMS sent.",Toast.LENGTH_SHORT).show();
+                            if(getCurrentMode.getBoolean(getString(R.string.enablerKey),true))
+                            {
+                                String phoneNo=incomingNumber;
+                                String message=getCurrentMode.getString(getString(R.string.keySMS),getString(R.string.defaultSMS));
+                                SmsManager smsManager=SmsManager.getDefault();
+                                smsManager.sendTextMessage(phoneNo,null,message,null,null);
+                                Toast.makeText(getApplicationContext(), "SMS sent.",Toast.LENGTH_SHORT).show();
+                            }
                         }
+
                         //Update database
                         sqlDB.execSQL("INSERT INTO Callers(name,number,timeCalled) VALUES('"+name+"','"+incomingNumber+"','"+localTime+"')");
                         //Update notif
