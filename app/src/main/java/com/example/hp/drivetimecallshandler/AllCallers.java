@@ -1,5 +1,7 @@
 package com.example.hp.drivetimecallshandler;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,27 +18,23 @@ public class AllCallers extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_callers);
         final Bundle bundle=getIntent().getExtras();
-        List temp1= (List) bundle.getSerializable("callerDataContactList");
-        List temp2=(List)bundle.getSerializable("callerDataNonContactList");
-        Caller callerData[]=new Caller[temp1.size()+temp2.size()];
-        //Toast.makeText(getApplicationContext(),BackgroundCallsRejecting.callersFromContactList.elementAt(0),Toast.LENGTH_SHORT).show();
-        int i=0;
-        Iterator itr=temp1.iterator();
-
-        while (itr.hasNext())
+        final SQLiteDatabase sqlDB=openOrCreateDatabase("db123#5",MODE_PRIVATE,null);
+        int totalCount=BackgroundCallsRejecting.numberOfCalled(sqlDB);
+        Caller callerData[]=new Caller[totalCount];
+        if(totalCount!=0)
         {
-            callerData[i]=new Caller("","","");;
-            callerData[i]= (Caller) itr.next();
-            i++;
+            Cursor getCallers=sqlDB.rawQuery("SELECT * FROM Callers",null);
+            int i=0;
+            getCallers.moveToFirst();
+            if(getCallers!=null)
+            {
+                do {
+                    callerData[i]=new Caller(getCallers.getString(0),getCallers.getString(1),getCallers.getString(2));
+                    i++;
+                }
+                while (getCallers.moveToNext());
+            }
         }
-        itr=temp2.iterator();
-        while (itr.hasNext())
-        {
-            callerData[i]=new Caller("","","");
-            callerData[i]=(Caller)itr.next();
-            i++;
-        }
-
         ListView showAllCallers=(ListView)findViewById(R.id.callerList);
         CallerAdapter callerAdapter=new CallerAdapter(getApplicationContext(),R.layout.row,callerData);
         showAllCallers.setAdapter(callerAdapter);

@@ -46,11 +46,6 @@ public class BackgroundCallsRejecting extends Service {
         return null;
     }
     NotificationManager notificationManager;
-
-
-    //Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
-    //PendingIntent resultPendingIntent =PendingIntent.getActivity(getApplicationContext(),0,resultIntent,0);
-    ArrayList<Caller> callersFromContactList=new ArrayList<Caller>();
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         final SQLiteDatabase sqlDB=openOrCreateDatabase("db123#5",MODE_PRIVATE,null);
@@ -69,7 +64,7 @@ public class BackgroundCallsRejecting extends Service {
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID,notiBuilder.build());
 
-        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(getApplicationContext().TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager = (TelephonyManager)getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
         // register PhoneStateListener
         PhoneStateListener callStateListener = new PhoneStateListener() {
             public void onCallStateChanged(int state, String incomingNumber)
@@ -103,7 +98,6 @@ public class BackgroundCallsRejecting extends Service {
                         }
                         else
                         {
-                            callersFromContactList.add(new Caller(name,incomingNumber,localTime));
                             Toast.makeText(getApplicationContext(),"Call From "+name+".Rejected.", Toast.LENGTH_SHORT).show();
                             //Sending the message to one who has called
                             String phoneNo=number;
@@ -151,23 +145,11 @@ public class BackgroundCallsRejecting extends Service {
 
     @Override
     public void onDestroy() {
-        final SQLiteDatabase sqlDB=openOrCreateDatabase("db123#5",MODE_PRIVATE,null);
-        Toast.makeText(getApplicationContext(),"Calls now available", Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(),"Callers who had called:", Toast.LENGTH_LONG).show();
-        Cursor getCallers=sqlDB.rawQuery("SELECT name FROM Callers",null);
-        String a;
-        getCallers.moveToFirst();
-        if(getCallers!=null)
-        {
-            do {
-                a=getCallers.getString(0);
-                Toast.makeText(getApplicationContext(),a,Toast.LENGTH_SHORT).show();
-            }
-            while (getCallers.moveToNext());
-        }
-        sqlDB.execSQL("DELETE FROM Callers");
         notificationManager.cancel(NOTIFICATION_ID);
         super.onDestroy();
+        Intent viewAllCallers=new Intent(BackgroundCallsRejecting.this,AllCallers.class);
+        viewAllCallers.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(viewAllCallers);
     }
 
     protected static int numberOfCalled(SQLiteDatabase sqlDB)
