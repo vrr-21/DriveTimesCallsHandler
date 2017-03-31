@@ -7,27 +7,35 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.internal.telephony.ITelephony;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.TimeZone;
 import java.util.Vector;
 
 /**
- * Created by hp on 28-03-2017.
+ * Created by varunrao on 09/02/17.
  */
 
 public class BackgroundCallsRejecting extends Service {
@@ -39,20 +47,26 @@ public class BackgroundCallsRejecting extends Service {
     }
     NotificationManager notificationManager;
 
-    static List<Caller> callersFromContactList=new ArrayList<Caller>();
-    static List<Caller> callersNotFromContactList=new ArrayList<Caller>();
+
+    //Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+    //PendingIntent resultPendingIntent =PendingIntent.getActivity(getApplicationContext(),0,resultIntent,0);
+    ArrayList<Caller> callersFromContactList=new ArrayList<Caller>();
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        final SQLiteDatabase sqlDB=openOrCreateDatabase("db123#5",MODE_PRIVATE,null);
+        //Used to redirect user to app on clicking the notification.
+        Intent traceBackToApp=new Intent(getApplicationContext(),MainActivity.class);
+        PendingIntent resultPendingIntent =PendingIntent.getActivity(getApplicationContext(),0,traceBackToApp,0);
 
         Toast.makeText(getApplicationContext(),"All Calls to be rejected now.", Toast.LENGTH_LONG).show();
-        final NotificationCompat.Builder notiBuilder= (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+        //Notification building
+        final NotificationCompat.Builder notiBuilder=new NotificationCompat.Builder(this)
                 .setContentTitle("Driving Started")
-                .setContentText(callersFromContactList.size()+" rejected")
+                .setContentText(numberOfCalled(sqlDB)+" calls rejected")
+                .setContentIntent(resultPendingIntent)
                 .setSmallIcon(R.drawable.driver_icon)
                 .setOngoing(true);
-
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
         notificationManager.notify(NOTIFICATION_ID,notiBuilder.build());
 
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(getApplicationContext().TELEPHONY_SERVICE);
@@ -67,7 +81,14 @@ public class BackgroundCallsRejecting extends Service {
                 {
                     try
                     {
-                        Caller temp;
+                        //Following Code gets time:
+                        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+1:00"));
+                        Date currentLocalTime = cal.getTime();
+                        SimpleDateFormat date = new SimpleDateFormat("HH:mm a");
+                        // you can get seconds by adding  "...:ss" to it
+                        date.setTimeZone(TimeZone.getTimeZone("GMT+5:30"));
+                        String localTime = date.format(currentLocalTime);
+
                         String name=findNameByNumber(incomingNumber);
                         TelephonyManager telephonyManager = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
                         Class clazz = Class.forName(telephonyManager.getClass().getName());
@@ -77,34 +98,36 @@ public class BackgroundCallsRejecting extends Service {
                         telephonyService.endCall();
                         if(name.equals("Not Found"))
                         {
-                            temp=new Caller("Unknown",incomingNumber,Calendar.getInstance().getTime().toString());
+                            name="Unknown";
                             Toast.makeText(getApplicationContext(),"Call From "+number+".Rejected.", Toast.LENGTH_SHORT).show();
-                            callersNotFromContactList.add(temp);
                         }
                         else
                         {
-                            temp=new Caller(name,incomingNumber,Calendar.getInstance().getTime().toString());
+                            callersFromContactList.add(new Caller(name,incomingNumber,localTime));
                             Toast.makeText(getApplicationContext(),"Call From "+name+".Rejected.", Toast.LENGTH_SHORT).show();
                             //Sending the message to one who has called
                             String phoneNo=number;
                             String message="Varun is currently driving. He has been notified, and will call when free.\nSent via Drive time Calls Handler";
                             SmsManager smsManager=SmsManager.getDefault();
-                            smsManager.sendTextMessage(phoneNo,null,message,null,null);
+                            //smsManager.sendTextMessage(phoneNo,null,message,null,null);
                             Toast.makeText(getApplicationContext(), "SMS sent.",Toast.LENGTH_SHORT).show();
-                            notiBuilder.setContentText(callersFromContactList.size()+" calls rejected");
-                            notificationManager.notify(NOTIFICATION_ID,notiBuilder.build());
-                            callersFromContactList.add(temp);
                         }
+                        //Update database
+                        sqlDB.execSQL("INSERT INTO Callers(name,number,timeCalled) VALUES('"+name+"','"+incomingNumber+"','"+localTime+"')");
+                        //Update notif
+                        notiBuilder.setContentText(numberOfCalled(sqlDB)+" calls rejected");
+                        notificationManager.notify(NOTIFICATION_ID,notiBuilder.build());
                     }
                     catch(Exception e)
                     {
                         Toast.makeText(getApplicationContext(),"Some Error:"+e, Toast.LENGTH_LONG).show();
+                        Log.i("1",e.toString());
                     }
                 }
             }
         };
         telephonyManager.listen(callStateListener,PhoneStateListener.LISTEN_CALL_STATE);
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     private String findNameByNumber(String incomingNumber) {
@@ -128,15 +151,37 @@ public class BackgroundCallsRejecting extends Service {
 
     @Override
     public void onDestroy() {
-       /* Toast.makeText(getApplicationContext(),"Calls now available", Toast.LENGTH_LONG).show();
+        final SQLiteDatabase sqlDB=openOrCreateDatabase("db123#5",MODE_PRIVATE,null);
+        Toast.makeText(getApplicationContext(),"Calls now available", Toast.LENGTH_LONG).show();
         Toast.makeText(getApplicationContext(),"Callers who had called:", Toast.LENGTH_LONG).show();
-        while(callersFromContactList.size()!=0)
+        Cursor getCallers=sqlDB.rawQuery("SELECT name FROM Callers",null);
+        String a;
+        getCallers.moveToFirst();
+        if(getCallers!=null)
         {
-            String n=callersFromContactList.elementAt(0);
-            Toast.makeText(getApplicationContext(),n, Toast.LENGTH_LONG).show();
-            callersFromContactList.removeElementAt(0);
-        }*/
+            do {
+                a=getCallers.getString(0);
+                Toast.makeText(getApplicationContext(),a,Toast.LENGTH_SHORT).show();
+            }
+            while (getCallers.moveToNext());
+        }
+        sqlDB.execSQL("DELETE FROM Callers");
         notificationManager.cancel(NOTIFICATION_ID);
         super.onDestroy();
+    }
+
+    protected static int numberOfCalled(SQLiteDatabase sqlDB)
+    {
+        Cursor getNumCallers=sqlDB.rawQuery("SELECT COUNT(*) FROM Callers",null);
+        int a=0;
+        getNumCallers.moveToFirst();
+        if(getNumCallers!=null)
+        {
+            do {
+                a=getNumCallers.getInt(0);
+            }
+            while (getNumCallers.moveToNext());
+        }
+        return a;
     }
 }

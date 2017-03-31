@@ -39,9 +39,6 @@ public class AllCallers extends AppCompatActivity {
 
         ListView showAllCallers=(ListView)findViewById(R.id.callerList);
         CallerAdapter callerAdapter=new CallerAdapter(getApplicationContext(),R.layout.row,callerData);
-        if(showAllCallers!=null)
-        {
-            showAllCallers.setAdapter(callerAdapter);
-        }
+        showAllCallers.setAdapter(callerAdapter);
     }
 }

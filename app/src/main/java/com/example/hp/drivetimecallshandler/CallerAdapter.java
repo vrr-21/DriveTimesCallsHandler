@@ -45,6 +45,7 @@ public class CallerAdapter extends ArrayAdapter<Caller> {
 
         TextView callerNameView=(TextView)row.findViewById(R.id.callerName);
         TextView numberView=(TextView)row.findViewById(R.id.number);
+        TextView timeView=(TextView)row.findViewById(R.id.time);
         Button callThemUp=(Button)row.findViewById(R.id.CallThem);
 
         callThemUp.setOnClickListener(new View.OnClickListener() {
@@ -53,6 +54,7 @@ public class CallerAdapter extends ArrayAdapter<Caller> {
                 Intent callPerson=new Intent(Intent.ACTION_CALL);
                 String toBeCalled="tel:"+mData[position].number;
                 callPerson.setData(Uri.parse(toBeCalled));
+                callPerson.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 if (ActivityCompat.checkSelfPermission(mContext,Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(mContext,"Permission disabled to call. Hence, cannot call",Toast.LENGTH_LONG);
                     return;
@@ -68,7 +70,7 @@ public class CallerAdapter extends ArrayAdapter<Caller> {
 
         callerNameView.setText(tempCaller.name);
         numberView.setText(tempCaller.number);
-
+        timeView.setText(tempCaller.time);
         return row;
     }
 

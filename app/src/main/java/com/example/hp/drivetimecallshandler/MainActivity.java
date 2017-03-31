@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,14 +20,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
-
-import static com.example.hp.drivetimecallshandler.BackgroundCallsRejecting.callersFromContactList;
-import static com.example.hp.drivetimecallshandler.BackgroundCallsRejecting.callersNotFromContactList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         String[] perms = {Manifest.permission.READ_CONTACTS,
@@ -66,12 +67,12 @@ public class MainActivity extends AppCompatActivity {
             startDrive.setVisibility(View.INVISIBLE);
             endDrive.setVisibility(View.VISIBLE);
             speedDisplayer.setVisibility(View.VISIBLE);
-            someText.setText("All Calls will be rejected automatically, and for your contacts a message will be sent. Concentrate on the driving and not the phone!");
+            someText.setText(R.string.msg2);
         } else {
             endDrive.setVisibility(View.INVISIBLE);
             startDrive.setVisibility(View.VISIBLE);
             speedDisplayer.setVisibility(View.INVISIBLE);
-            someText.setText("This app will automatically reject any incoming calls coming after you've pressed the above button. If the call has come from a contact of yours, then that person will be sent a message that you are currently driving and hence cannot attend the call.");
+            someText.setText(R.string.msg1);
         }
 
         final LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -79,11 +80,16 @@ public class MainActivity extends AppCompatActivity {
         startDrive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Database Creation
+                final SQLiteDatabase sqlDB=openOrCreateDatabase("db123#5",MODE_PRIVATE,null);
+                sqlDB.execSQL("CREATE TABLE IF NOT EXISTS Callers(name VARCHAR,number VARCHAR,timeCalled VARCHAR)");
+                sqlDB.execSQL("DELETE FROM Callers");
+
                 startDrive.setVisibility(View.INVISIBLE);
                 endDrive.setVisibility(View.VISIBLE);
-                someText.setText("All Calls will be rejected automatically, and for your contacts a message will be sent. Concentrate on the driving and not the phone!");
+                someText.setText(R.string.msg2);
                 editor.putBoolean(isCurrentDrivingKey, true).commit();
-                speedDisplayer.setVisibility(View.VISIBLE);
+                //speedDisplayer.setVisibility(View.VISIBLE);
 
                 LocationListener locationListener = new LocationListener() {
                     public void onLocationChanged(Location location) {
@@ -126,13 +132,9 @@ public class MainActivity extends AppCompatActivity {
                 speedDisplayer.setVisibility(View.INVISIBLE);
                 endDrive.setVisibility(View.INVISIBLE);
                 startDrive.setVisibility(View.VISIBLE);
-                someText.setText("@string/msg1");
+                someText.setText(R.string.msg1);
                 editor.putBoolean(isCurrentDrivingKey,false).commit();
                 stopService(new Intent(getBaseContext(),BackgroundCallsRejecting.class));
-                Intent showAllCallers=new Intent(getBaseContext(),AllCallers.class);
-                showAllCallers.putExtra("callerDataContactList", (Serializable) callersFromContactList);
-                showAllCallers.putExtra("callerDataNonContactList",(Serializable)callersNotFromContactList);
-                startActivity(showAllCallers);
             }
         });
     }
