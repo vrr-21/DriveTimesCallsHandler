@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    static List<Caller> callersFromContactList=new ArrayList<Caller>();
+    static List<Caller> callersNotFromContactList=new ArrayList<Caller>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
